@@ -1,0 +1,165 @@
+[
+  {
+    "mode": "REQUIRED",
+    "name": "id",
+    "type": "STRING"
+  },
+  {
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "first_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "full_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "hashed_first_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "hashed_last_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "last_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "last_name_tokens",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "middle_initial",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "middle_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "stripped_diacritics_first_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "stripped_diacritics_last_name",
+        "type": "STRING"
+      },
+      {
+        "mode": "REPEATED",
+        "name": "variants",
+        "type": "STRING"
+      }
+    ],
+    "mode": "NULLABLE",
+    "name": "name",
+    "type": "RECORD"
+  },
+  {
+    "fields": [
+      {
+        "mode": "NULLABLE",
+        "name": "amount",
+        "type": "FLOAT"
+      },
+      {
+        "fields": [
+          {
+            "mode": "NULLABLE",
+            "name": "campaign",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "channel",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "gift_status",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "gift_tier",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "note",
+            "type": "STRING"
+          },
+          {
+            "mode": "NULLABLE",
+            "name": "region",
+            "type": "STRING"
+          }
+        ],
+        "mode": "NULLABLE",
+        "name": "custom_attributes",
+        "type": "RECORD"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "date",
+        "type": "DATE"
+      },
+      {
+        "mode": "REQUIRED",
+        "name": "id",
+        "type": "STRING"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "is_closed_won",
+        "type": "BOOLEAN"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "is_excluded",
+        "type": "BOOLEAN"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "transaction_type",
+        "type": "STRING"
+      }
+    ],
+    "mode": "REPEATED",
+    "name": "transactions",
+    "type": "RECORD"
+  },
+  {
+    "mode": "NULLABLE",
+    "name": "windfall_id",
+    "type": "STRING"
+  },
+  {
+    "fields": [
+      {
+        "mode": "REQUIRED",
+        "name": "written_at",
+        "type": "TIMESTAMP"
+      },
+      {
+        "mode": "NULLABLE",
+        "name": "is_deleted",
+        "type": "BOOLEAN"
+      }
+    ],
+    "mode": "NULLABLE",
+    "name": "metadata",
+    "type": "RECORD"
+  }
+]

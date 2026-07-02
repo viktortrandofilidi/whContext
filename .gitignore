@@ -1,0 +1,12 @@
+# wf workspace — personal shared-context repo.
+# The workspace root holds four independent git repos (match, hamster,
+# orchestrator, commons-kotlin) plus scratch and build artifacts. Track only
+# the shared context: this file, the workspace CLAUDE.md, and whContext/.
+
+# Ignore everything at the workspace root by default...
+/*
+
+# ...then re-include only the shared-context pieces.
+!/.gitignore
+!/CLAUDE.md
+!/whContext/

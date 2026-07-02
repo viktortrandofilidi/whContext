@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1480" height="940" viewBox="0 0 1480 940" font-family="Inter, Helvetica, Arial, sans-serif">
+  <defs>
+    <style>
+      .card{fill:#ffffff;stroke:#e6e8eb;stroke-width:1;rx:10;}
+      .h{font-size:18px;font-weight:700;fill:#1f2933;}
+      .lbl{font-size:13px;fill:#5b6570;}
+      .val{font-size:14px;fill:#1f2933;}
+      .tag{font-family:"SF Mono",Menlo,monospace;font-size:13px;fill:#0b6b5f;}
+      .mut{font-size:12px;fill:#8a94a0;}
+      .pill{fill:#e9f7f4;stroke:#7fd1c4;stroke-width:1;}
+      .selbox{fill:#f7f9fa;stroke:#d6dbe0;stroke-width:1;}
+      .selOn{fill:#eef6ff;stroke:#2f8de4;stroke-width:1.5;}
+      .field{fill:#ffffff;stroke:#cfd6dd;stroke-width:1;}
+      .agg{fill:#fff4e5;stroke:#f0b86c;stroke-width:1.2;}
+      .opln{font-size:13px;fill:#2f8de4;font-weight:600;}
+      .chev{font-size:11px;fill:#9aa3ad;}
+      .note{font-size:12px;fill:#c0392b;}
+      .badge{font-size:11px;font-weight:700;}
+    </style>
+  </defs>
+
+  <rect width="1480" height="940" fill="#33373d"/>
+  <text x="40" y="40" font-size="20" font-weight="700" fill="#ffffff">COM-528 — Custom Field Logic: Target Level drives placement</text>
+  <text x="40" y="64" class="mut" fill="#b8c0c8">Реальные теги из схемы/кода. Уровень = первый выбор → читаемый readout «куда ляжет» + сгенерированный semantic tag.</text>
+
+  <!-- ============ LEFT: PERSON / AGGREGATION ============ -->
+  <g transform="translate(40,90)">
+    <rect class="card" width="680" height="800" rx="10"/>
+    <text x="28" y="44" class="h">Custom Field Logic</text>
+    <rect x="28" y="58" width="150" height="22" rx="11" class="pill"/>
+    <text x="42" y="74" class="badge" fill="#0b6b5f">STATE A · PERSON</text>
+
+    <text x="28" y="120" class="lbl">Calculate this field for each…</text>
+    <!-- selector -->
+    <g transform="translate(28,132)">
+      <rect class="selOn" width="624" height="44" rx="8"/>
+      <circle cx="26" cy="22" r="7" fill="#2f8de4"/><circle cx="26" cy="22" r="3" fill="#fff"/>
+      <text x="46" y="27" class="val" font-weight="700">Person</text>
+      <text x="160" y="27" class="mut">one value per person</text>
+
+      <rect y="52" class="selbox" width="624" height="40" rx="8"/>
+      <circle cx="26" cy="72" r="7" fill="#fff" stroke="#b6bfc8"/>
+      <text x="46" y="77" class="val">Transaction</text>
+      <text x="160" y="77" class="mut">one value per transaction</text>
+
+      <rect y="100" class="selbox" width="624" height="40" rx="8"/>
+      <circle cx="26" cy="120" r="7" fill="#fff" stroke="#b6bfc8"/>
+      <text x="46" y="125" class="val">Email Event</text>
+      <text x="160" y="125" class="mut">one value per email event</text>
+    </g>
+    <text x="28" y="300" class="mut">↑ список уровней = Person + каждый list-узел из Data Schema (aggregated schema)</text>
+
+    <!-- placement readout -->
+    <g transform="translate(28,318)">
+      <rect width="624" height="66" rx="8" fill="#f3faf8" stroke="#bfe6dd"/>
+      <text x="16" y="26" class="lbl">📍 Stored on: <tspan fill="#1f2933" font-weight="700">the Person</tspan></text>
+      <text x="16" y="50" class="tag">person.customAttributes[totalGiving&lt;float&gt;]</text>
+    </g>
+
+    <!-- statement -->
+    <text x="28" y="424" class="val">Total giving =</text>
+    <!-- aggregated row -->
+    <g transform="translate(28,440)">
+      <rect class="agg" width="120" height="40" rx="6"/>
+      <text x="20" y="25" class="val">∑ SUM ▾</text>
+      <rect x="132" class="field" width="200" height="40" rx="6"/>
+      <text x="146" y="25" class="val">Amount</text>
+      <text x="146" y="-2" class="mut">transactions.items.amount</text>
+    </g>
+    <text x="28" y="512" class="note">агрегация ОБЯЗАТЕЛЬНА: list-поле на Person-уровне надо свернуть в одно значение</text>
+
+    <!-- resulting formula -->
+    <g transform="translate(28,532)">
+      <rect width="624" height="48" rx="8" fill="#f7f9fa" stroke="#e0e5ea"/>
+      <text x="16" y="20" class="mut">formula</text>
+      <text x="16" y="38" class="tag" fill="#1f2933">agg:sum(transactions.items, 'amount')</text>
+    </g>
+
+    <line x1="28" y1="612" x2="652" y2="612" stroke="#eef1f3"/>
+    <text x="28" y="640" class="lbl" font-weight="700">Что видит юзер</text>
+    <text x="28" y="664" class="mut">• одно значение на человека</text>
+    <text x="28" y="686" class="mut">• поле-пикер показывает поля Person + агрегаты по спискам</text>
+    <text x="28" y="708" class="mut">• AST разрешает agg:*</text>
+    <text x="28" y="730" class="mut">• тег root: person.customAttributes[...]</text>
+  </g>
+
+  <!-- ============ RIGHT: TRANSACTION / PER-ITEM ============ -->
+  <g transform="translate(760,90)">
+    <rect class="card" width="680" height="800" rx="10"/>
+    <text x="28" y="44" class="h">Custom Field Logic</text>
+    <rect x="28" y="58" width="210" height="22" rx="11" fill="#eef6ff" stroke="#9ccbf2"/>
+    <text x="42" y="74" class="badge" fill="#2168a8">STATE B · PER TRANSACTION (new)</text>
+
+    <text x="28" y="120" class="lbl">Calculate this field for each…</text>
+    <g transform="translate(28,132)">
+      <rect class="selbox" width="624" height="40" rx="8"/>
+      <circle cx="26" cy="20" r="7" fill="#fff" stroke="#b6bfc8"/>
+      <text x="46" y="25" class="val">Person</text>
+      <text x="160" y="25" class="mut">one value per person</text>
+
+      <rect y="48" class="selOn" width="624" height="44" rx="8"/>
+      <circle cx="26" cy="70" r="7" fill="#2f8de4"/><circle cx="26" cy="70" r="3" fill="#fff"/>
+      <text x="46" y="75" class="val" font-weight="700">Transaction</text>
+      <text x="160" y="75" class="mut">one value per transaction</text>
+
+      <rect y="100" class="selbox" width="624" height="40" rx="8"/>
+      <circle cx="26" cy="120" r="7" fill="#fff" stroke="#b6bfc8"/>
+      <text x="46" y="125" class="val">Email Event</text>
+      <text x="160" y="125" class="mut">one value per email event</text>
+    </g>
+    <text x="28" y="300" class="mut">↑ выбран list-узел transactions.items → режим per-item</text>
+
+    <!-- placement readout -->
+    <g transform="translate(28,318)">
+      <rect width="624" height="66" rx="8" fill="#f3faf8" stroke="#bfe6dd"/>
+      <text x="16" y="26" class="lbl">📍 Stored on: <tspan fill="#1f2933" font-weight="700">every Transaction</tspan></text>
+      <text x="16" y="50" class="tag">person.transactions.items.customAttributes[largeTransaction&lt;boolean&gt;]</text>
+    </g>
+
+    <!-- statement -->
+    <text x="28" y="424" class="val">Flag each Transaction as TRUE when ALL are true:</text>
+    <!-- per-item row, NO aggregation -->
+    <g transform="translate(28,440)">
+      <rect class="field" width="200" height="40" rx="6"/>
+      <text x="14" y="25" class="val">Amount</text>
+      <text x="14" y="-2" class="mut">transactions.items.amount  →  amount</text>
+      <rect x="212" class="field" width="70" height="40" rx="6"/>
+      <text x="226" y="25" class="val">Is</text>
+      <rect x="294" class="field" width="150" height="40" rx="6"/>
+      <text x="308" y="25" class="val">Greater than</text>
+      <rect x="456" class="field" width="100" height="40" rx="6"/>
+      <text x="470" y="25" class="val">1000</text>
+    </g>
+    <text x="28" y="512" class="note">НЕТ дропдауна агрегации · поля-пикер = ТОЛЬКО поля одной транзакции</text>
+
+    <!-- resulting formula -->
+    <g transform="translate(28,532)">
+      <rect width="624" height="48" rx="8" fill="#f7f9fa" stroke="#e0e5ea"/>
+      <text x="16" y="20" class="mut">formula (item-scoped)</text>
+      <text x="16" y="38" class="tag" fill="#1f2933">amount &gt; 1000</text>
+    </g>
+
+    <line x1="28" y1="612" x2="652" y2="612" stroke="#eef1f3"/>
+    <text x="28" y="640" class="lbl" font-weight="700">Что видит юзер</text>
+    <text x="28" y="664" class="mut">• значение на КАЖДУЮ транзакцию</text>
+    <text x="28" y="686" class="mut">• поле-пикер скоупится к полям transaction (amount, id, …)</text>
+    <text x="28" y="708" class="mut">• AST запрещает agg:* и ссылки на др. списки / верх. уровень</text>
+    <text x="28" y="730" class="mut">• тег per-item: person.transactions.items.customAttributes[...]</text>
+    <text x="28" y="760" class="mut">• типизированное поле тоже доступно: person.transactions.items.isClosedWon</text>
+  </g>
+</svg>
