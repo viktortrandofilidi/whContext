@@ -1,5 +1,9 @@
 # COM-593 — COMPASS-mode CSV mapping never sets MAPPED (analysis + plan)
 
+> **Current state:** Phase 2 is implemented — see `COM-593-implementation.md` for what actually shipped and the
+> finalized design. This file is the original analysis/plan (some Phase-2 details below were superseded; note that
+> commons-kotlin IS in the workspace and match's modern PubSub subscriber infra now exists).
+
 Bug, Highest, assignee Viktor, epic ENG-5504 (Orchestrator-Driven Portal-Admin CSV Workflows).
 Investigated via a code-verified workflow (match + hamster). commons-kotlin & orchestrator are NOT checked out
 in this workspace, so anything about the shared event contract is UNVERIFIED here.
