@@ -78,3 +78,21 @@ commons-kotlin versioning is **GitVersion by commit-message** (`+semver: feature
 2. Bump `wf-commons-kotlin` → new version in match `pom.xml` AND hamster `gradle/libs.versions.toml`.
 3. Then per-repo: `mvn spotless:apply` + `pnpm prettier --write` (match), `./gradlew spotlessApply` (hamster/commons); build; run the new tests.
 Until step 2, match/hamster don't compile (0.45.0/0.46.0 lack `DocumentUpdatedEventV1`).
+
+## UPDATE 2026-07-08 — UNBLOCKED (versions bumped, verified)
+- commons-kotlin released **v1.1.0** (PR #52 merged to `main`, target commit 568d5e449b). `DocumentUpdatedEventV1`
+  (5 flat fields: csvFileId UUID, csvFileMatchId Long, accountId String, fulfilledStates List<String>, updatedAt Instant)
+  ships in v1.1.0. NOTE: v1.0.0 was a **breaking** release (`refactor(event-types): drop MAPPING_CREATED/UPDATED/FINALIZED
+  from DatasetConfigChangeType`, PR #51) — so bumping crosses a major.
+- match `pom.xml`: `wf-commons-kotlin.version` 0.45.0 → **1.1.0** (working-tree edit, not committed).
+- hamster `gradle/libs.versions.toml`: `wf-commons-kotlin` 0.46.0 → **1.1.0** (working-tree edit, not committed).
+- SIDE EFFECT of the major on the hamster branch: `hamster-core/.../dataset/core/event/DatasetConfigChangedPublisherTest.kt`
+  used the now-removed `MAPPING_CREATED`/`MAPPING_UPDATED` as *arbitrary* change types for two generic
+  `publishDatasetChangeById` cases → swapped to `DATASET_CREATED`/`DATASET_UPDATED` (coverage preserved). This is
+  unrelated to COM-593 (belongs to the not-yet-merged `drop-mapping-config-events` cleanup); done inline only to make the
+  branch compile against 1.1.0. hamster main still references these but is pinned to 0.46.0 so it compiles.
+- VERIFIED: match full reactor compile green (`mvn -T1C -pl portal-admin -am compile`). hamster NOT built (per standing rule).
+- Local test recipe for the event: see chat / below. Emulator topic `local_<user>_hamster_document_updated`,
+  sub `local_<user>_document-updated-sub-match`, domain-events project `windfall-dev-329123`, emulator `localhost:2222`.
+  match's subscriber auto-provisions the topic locally (createTopicIfNotExists=true), so publishing a synthetic
+  `CloudEvent<DocumentUpdatedEventV1>` JSON is enough to exercise the consumer without hamster running.

@@ -1,35 +1,44 @@
-# COM-572 — «Add Field» в CRM-датасорсе открывает CRM Registry (implemented, needs IDE build)
+# COM-572 — "Add Field" in a CRM datasource opens the CRM Registry (PR open, in review)
 
-Story COM-572, epic COM-563. Frontend-only in `match/portal-admin/frontend`. No CLI toolchain in this env → not
-built/typechecked/prettier'd here; do it in IntelliJ.
+Story COM-572, epic COM-563. Branch `viktor/COM-572/crm-registry-map-fields`. PR created, awaiting review
+(incl. Copilot). This is a **living checklist** — update it as review / demo feedback changes scope.
 
-## Approach
-"Map fields" on a CRM dataset's classification (`dataset.dataSourceKey != null`) opens a new full-width
-"Enter Object Details" modal listing the CRM object's fields; operator toggles fields on and either maps to a
-Windfall field or creates a new one (type/description/use-cases). Reuses existing building blocks:
-- source: `useCrmObjectFields(accountId, objectName)` → `/api/crm-connection/metadata/{acct}/{object}` (Salesforce metadata).
-- inline editor: `UnifiedCreateClassificationFieldForm` (Windfall picker via Browse Known Fields, Field Type, Description, Application/Modelling).
-- save: `useAddClassificationField.addField` (`:amend`), mirroring `CreateClassificationFieldModal.handleUnifiedSubmit`.
+## What it delivers
+"Map fields" on a CRM dataset's classification opens the "Enter Object Details" modal listing the CRM
+object's fields; the operator toggles fields on and either creates a new classification field or maps to an
+existing known field. Works for **HubSpot and Salesforce** (was Salesforce-only).
 
-## Files
-- `types/dataset.types.ts` — added `Dataset.dataSourceKey?` and `Classification.crmEntityKey?`.
-- `domain/datasets/components/classifications/crm-registry/crmRegistryUtils.ts` (NEW) — `crmTypeToSchemaFieldType`, `unmappedCrmFields`.
-- `.../crm-registry/CrmRegistryFieldRow.tsx` (NEW) — table row: toggle, Label/API Name/Type, Map-to-Field summary + edit icon, expandable inline editor (UnifiedForm + Save Changes/Cancel).
-- `.../crm-registry/CrmRegistryModal.tsx` (NEW) — "Enter Object Details": API Name header + count, Record ID select, Permissions Write switch, search + type filter, unmapped-fields table, Cancel/Back/Next-Step, loading/error. Next Step → sequential `addField` per enabled field; Record ID field → `isKey`.
-- `.../classifications/ClassificationAccordionItem.tsx` — gate: CRM → CrmRegistryModal, else CreateClassificationFieldModal.
+## Backend (match/shared + portal-admin)
+- CRM object-field metadata is now **CRM-agnostic via the Strategy pattern**: interface
+  `CrmObjectMetadataProvider` + `SalesforceObjectMetadataProvider` (SFDC) / `HubSpotObjectMetadataProvider`
+  (HUBSPOT) `@Service` beans; `CrmConnectionService.getObjectFields` injects `List<…>` → `Map<CrmType,…>` and
+  dispatches by the account's CRM type (mirrors `OAuthService.credentialsProviderMap`). No more `switch`.
+- Neutral DTOs `CrmObjectMetadata` / `CrmFieldMetadata`; `HubSpotMetadataService` reads HubSpot properties.
+- Endpoint contract unchanged shape-wise (frontend `SalesforceObjectMetadata` type still deserializes).
 
-## Deviations from mock / not done (revisit)
-- **Map to Field**: implemented as an expandable inline editor (with Browse-Known-Fields Windfall picker + Create New) rather than the mock's in-row dropdown listing Windfall fields directly. Functionally equivalent; UX differs.
-- **Use-cases (Application/Modelling)**: shown in editor; persistence mirrors the existing create-field modal (no explicit use-case tag suffix built client-side — server/form concern). Confirm this persists use-cases as intended.
-- **Field types**: real `SchemaFieldType` (STRING/FLOAT/INTEGER/BOOLEAN/DATE), not the mock's "ID" — "ID" is expressed via the Record ID selector (isKey), not a type.
-- **Permissions: Write** — visual switch only, no backend effect (semantics undefined in story).
-- **Enter-to-confirm + auto-focus next row** (mock note) — NOT implemented.
-- CRM coverage: works for Salesforce (only live metadata source); other CRMs → error state (per story).
+## Frontend (portal-admin/frontend, crm-registry/)
+- **Record ID**: custom multi-select that auto-closes on pick (`RecordIdSelect`). Picks → `isKey` on create.
+- **Fields table**: search + type filter; per-row enable toggle; Label shown as text with a **hover pencil**
+  for inline rename; **API Name wraps** to next line (no ellipsis); Type; Map to Field.
+- **Map to Field**: "Create New Field" pinned at top; known-field list filtered to **type-compatible** entries
+  (`isSchemaTypeCompatible` — e.g. a text field can't map to a number); after Save the picker shows the new
+  field's name; picker wraps long names instead of overflowing the column.
+- **Field Type**: locked to the CRM-inferred type (`lockDataType`), not editable. Inference handles both
+  Salesforce and HubSpot spellings (`bool`, `number`, `datetime`, …).
+- **Description**: multi-line.
+- **Save Changes**: stages the mapping locally — does **NOT** write to the classification. **Next Step**
+  batch-creates the enabled fields via `useAddClassificationField.addField`; guards if a Record-ID pick is left
+  on a disabled row. Cancel restores the pre-edit selection; toggling a row off stashes its saved mapping so
+  re-enabling restores it.
+- **Modal scroll**: `ScrollArea.Autosize mah='50dvh' type='always'` (self-contained; footer stays pinned).
+- Permission "Write" toggle **removed**.
 
-## Open / verify
-- `crmEntityKey` must equal the Salesforce object API name accepted by `/crm-connection/metadata/{acct}/{object}` — verify on a real account; add a mapping if it diverges.
-- `unmappedCrmFields` matches CRM api name (sanitized) against classification field keys — approximate; confirm.
-- Record ID / Permissions semantics not specified in story.
+## Decisions / deferred
+- **Create-on-save was tried, then reverted** (user: "пока что не сохранять в классификацию на Save"): fields
+  are created on **Next Step**, not on Save. See [[feedback_confirm_persistence_semantics_before_build]].
+- No dev-only mocks in the PR (the local HubSpot field mock was removed once real data flowed).
+- Field types are real `SchemaFieldType`; "ID" from the mock is expressed via the Record ID selector (isKey).
 
-## TODO before commit (user, IDE)
-`pnpm prettier --write` the new/changed TS; typecheck + build; manual verify per plan; commit.
+## Local testing
+Account `tvv_hs` (id 5, `crm_type=HUBSPOT`); real HubSpot metadata now flows (444 Contact fields). Reach it at
+`localhost:5173/accounts/5/datasets-compass/tvv-hs-hubspot` → expand a classification → Map fields.

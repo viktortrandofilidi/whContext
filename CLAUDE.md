@@ -2,6 +2,14 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Claude Code skills (use these — they encode our review conventions)
+
+Personal skills/subagent/workflow live in `whContext/claude/` and are symlinked into `.claude/` (run `bash whContext/claude/install.sh` on a new machine). Reach for them so changes are right the first time and pass review without back-and-forth:
+
+- **Starting or changing any match UI** (screen, page, modal, dialog, form, input, table, grid, wizard, accordion, drawer, tab, chart, or data hook)? → use the `frontend-feature` skill **first**. It front-loads the reuse-existing-pattern, Mantine style-props / no-inline-style, TanStack Query, and mode-scoped-picker conventions.
+- **Before saying "done", committing, or pushing** any code change? → run the `self-review` skill: it runs the CI gates and spawns the repo-tuned `code-reviewer` subagent to catch logic and convention issues before Copilot does.
+- **Before an important PR, or when a change is risky?** → run the `deep-review` skill: an adversarial find→verify multi-agent review (higher signal, fewer nitpicks; costs more tokens).
+
 ## Workspace layout
 
 This directory is a workspace containing **four repositories** evolved side by side — three services and one shared library:
