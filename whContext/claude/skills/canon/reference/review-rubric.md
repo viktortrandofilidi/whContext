@@ -27,6 +27,13 @@ bugs are logic bugs. Report correctness before conventions.
 - **Stable keys from stable identity.** Derive a persisted key/id from the immutable
   identifier (an API name), never a renamable display label — or a rename changes the
   key, breaks the "already exists" check, and creates duplicates on the next open.
+- **Backend-contract type fidelity.** When an endpoint's response shape narrows (e.g. a
+  list endpoint now returns a summary DTO *without* a field the full type has), the FE
+  type AND every consumer of that path (hook return type, component props/state/callbacks,
+  imports) must be the narrower type — mirror the backend split (`Summary` +
+  `Full = Summary & { extra }`). Leaving the wider type "because it's runtime-harmless"
+  lets consumers assume the missing field is present → real contract mismatch, flagged
+  High. Keep the detail path on the full type; only the list path narrows.
 - **Query keys** inline instead of the centralized enum; redundant `as XNode` cast
   after a type guard (a `--max-warnings 0` failure) + its now-unused type import.
 
@@ -55,6 +62,12 @@ bugs are logic bugs. Report correctness before conventions.
 - **Behavior parity across implementations.** A new implementation of a shared interface
   (e.g. a second CRM/provider) must match the observable behavior of the existing one —
   sort order, null handling, casing — or the same UI behaves differently per account.
+- **Unimplemented strategy branch hard-fails the endpoint.** A service that dispatches to
+  a strategy/provider where one branch isn't built yet (throws
+  `UnsupportedOperationException` / similar) will 500 the whole user-facing endpoint for
+  that type. Give a graceful fallback (degrade to a related result — e.g. already-connected
+  objects — or empty) or have the caller handle it; an unimplemented provider must not
+  break the endpoint for that CRM/type.
 - **Exception thrown inside an `Optional.map` / stream.** A method reference in `.map(...)`
   that can throw (e.g. an `asX()` that throws for the wrong subtype) fires *before* any
   later `instanceof` / guard — validate the source's type/shape before transforming it.

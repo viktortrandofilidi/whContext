@@ -58,6 +58,12 @@ findings before reporting), ranked most-severe first, plus a short prose summary
 - Fix every CONFIRMED correctness finding.
 - Apply convention findings (inline styles, query-key/gcTime, reuse-existing-pattern,
   KDoc hygiene, `retrieveXxxOrThrow`, ephemeral overrides).
+- **Don't defer a looseness you already noticed as "harmless / reviewer's call."** If you
+  spot a type-contract mismatch (FE still typed as the wide type after the backend narrowed)
+  or an endpoint that hard-fails on an unimplemented branch, FIX it in this pass. "Runtime-
+  harmless" and "out of scope for the popup" are how these slip through — then Copilot files
+  them High and it's a re-push. When you're genuinely unsure whether to change it, ask with a
+  recommendation; don't hand it back unaddressed.
 - For anything you disagree with, say why in your summary — don't silently drop it.
 
 ## 4. Re-run gates if you changed code, then report
