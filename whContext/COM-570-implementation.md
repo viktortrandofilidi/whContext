@@ -3,7 +3,7 @@
 Story COM-570, epic COM-563. The object-level sibling of COM-572 (field-level "Map New Fields"):
 a "Register New Object" button on a CRM dataset's Objects tab opens a 4-step wizard to register a
 whole new CRM object (Select object → Enter object details → Map object relationships → Register &
-Reprocess). Design mockups + full plan: `~/.claude/plans/jaunty-weaving-hamming.md`.
+Reprocess). Design mockups + full plan: [`COM-570-plan.md`](./COM-570-plan.md).
 Living checklist — update as scope/review changes. No commit/push until asked.
 
 ## Branch chain (this workspace)
